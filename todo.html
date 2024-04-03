@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Task Manager</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div class="container">
+            <h1>Task Manager</h1>
+            <form id="taskForm">
+                <input type="text" id="title" placeholder="Task Title" required>
+                <input type="text" id="description"
+                    placeholder="Task Description" required>
+                <input type="date" id="deadline" required>
+                <button type="submit">Add Task</button>
+            </form>
+            <ul id="taskList"></ul>
+        </div>
+
+        <script>
+    const taskForm = document.getElementById("taskForm");
+    const taskList = document.getElementById("taskList");
+    let tasks = [];
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const storedTasks = localStorage.getItem("tasks");
+        if (storedTasks) {
+            tasks = JSON.parse(storedTasks);
+            tasks.forEach(task => {
+                addTaskToList(task);
+            });
+        }
+    });
+
+    taskForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const deadline = document.getElementById("deadline").value;
+
+        const task = {
+            title: title,
+            description: description,
+            deadline: deadline,
+            completed: false,
+        };
+
+        tasks.push(task);
+        addTaskToList(task);
+        saveTasksToLocalStorage();
+        taskForm.reset();
+    });
+
+    function addTaskToList(task) {
+        const li = document.createElement("li");
+        li.innerHTML = `
+    Task: <span>${task.title}</span><br>
+    Description: <span>${task.description}</span><br>
+    Deadline: <span>${task.deadline}</span><br>
+    <button class="delete">Delete</button>
+  `;
+        taskList.appendChild(li);
+
+        li.querySelector(".delete").addEventListener("click", function () {
+            const index = tasks.findIndex(t => t.title === task.title && t.description === task.description && t.deadline === task.deadline);
+            if (index !== -1) {
+                tasks.splice(index, 1);
+                saveTasksToLocalStorage();
+            }
+            li.remove();
+        });
+    }
+
+    function saveTasksToLocalStorage() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+</script>
+    </body>
+</html>
